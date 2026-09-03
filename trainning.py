@@ -7,7 +7,7 @@ from data_importation import get_data_loaders
 import matplotlib.pyplot as plt
 
 def main():
-    # Configuration du GPU
+    # Configuration
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Entraînement en cours sur : {torch.cuda.get_device_name(0) if device.type == 'cuda' else 'CPU'}")
 
