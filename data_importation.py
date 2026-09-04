@@ -63,6 +63,7 @@ def get_data_loaders(batch_size=64):
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))
     ])
 
+    #Stratégie de chargement des datasets CIFAR-10
     trainset = torchvision.datasets.CIFAR10(root='./datasets', train=True, download=False, transform=train_transform)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
 

@@ -36,5 +36,5 @@ class AlexNet(nn.Module):
         x = self.classifier(x)
         return x
 
-example_model = AlexNet(num_classes=1000)
-summary(example_model,input_size=(1, 3, 224, 224))
+# example_model = AlexNet(num_classes=1000)
+# summary(example_model,input_size=(1, 3, 224, 224))

@@ -4,6 +4,7 @@ import torch.optim as optim
 from torchinfo import summary
 from CNN_archi import AlexNet
 from data_importation import get_data_loaders
+from data_importation_perso import get_stanford_dogs_split_loaders
 import matplotlib.pyplot as plt
 
 def main():
@@ -12,10 +13,11 @@ def main():
     print(f"Entraînement en cours sur : {torch.cuda.get_device_name(0) if device.type == 'cuda' else 'CPU'}")
 
     # Récupération des dataloaders
-    trainloader, testloader = get_data_loaders(batch_size=64)
+    #trainloader, testloader = get_data_loaders(batch_size=64)
+    trainloader, testloader = get_stanford_dogs_split_loaders(batch_size=64)
 
     # Instanciation du modèle et passage sur GPU
-    model = AlexNet(num_classes=10).to(device)
+    model = AlexNet(num_classes=120).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs
 
     # Fonction de perte et optimisateur
     criterion = nn.CrossEntropyLoss()
@@ -26,7 +28,7 @@ def main():
     test_losses = []
 
     # Nombre d'époques (tu pourras l'augmenter, ex: 20 ou 50 pour observer l'overfitting)
-    num_epochs = 50
+    num_epochs = 10
 
     print("\n--- Début de l'entraînement ---")
     for epoch in range(num_epochs):
