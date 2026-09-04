@@ -80,7 +80,11 @@ def get_stanford_dogs_split_loaders(root_dir=r'C:\Users\User\Documents\projets v
     # Pipelines de transformation distincts pour train et test
     train_transform = transforms.Compose([
         transforms.Resize((224, 224)),
-        transforms.RandomHorizontalFlip(),
+        transforms.RandomCrop(224, padding=24),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomAffine(degrees=15, translate=(0.2, 0.2), scale=(0.8, 1.2)),
+                transforms.RandomPerspective(distortion_scale=0.1, p=0.5),
+                transforms.GaussianBlur(kernel_size=(3, 5), sigma=(0.1, 1.0)),
         transforms.ToTensor(),
         transforms.Normalize(mean=(0.476, 0.451, 0.391), std=(0.258, 0.252, 0.257))
     ])

@@ -26,9 +26,9 @@ def predict_image(image_path):
     # Chargement du modèle et des poids entraînés
     model = AlexNet(num_classes=10).to(device)
     try:
-        model.load_state_dict(torch.load(r'AlexNet\models\alexnet_cifar10_epochs50_PCA.pth', map_location=device))
+        model.load_state_dict(torch.load(r'AlexNet\models\alexnet_SDogs_epochs35.pth', map_location=device))
     except FileNotFoundError:
-        print("Erreur : Le fichier 'alexnet_cifar10.pth' est introuvable. Lancez d'abord training.py pour sauvegarder le modèle.")
+        print("Erreur : Le fichier 'alexnet_SDogs_epochs35.pth' est introuvable. Lancez d'abord training.py pour sauvegarder le modèle.")
         return
 
     model.eval()
@@ -60,5 +60,5 @@ def predict_image(image_path):
     print(f"-> Prédiction finale : {class_names[indices[0].item()]} ({prob_sorted[0].item():.4f}% de confiance)\n")
 
 if __name__ == '__main__':
-    path = r'AlexNet\test_pictures\chien2.jpeg'
+    path = r'AlexNet\test_pictures\poppydog.jpg'
     predict_image(path)

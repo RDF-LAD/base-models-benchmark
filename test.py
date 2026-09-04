@@ -29,7 +29,7 @@ def main():
 
     # Instanciation du modèle, chargement des poids entraînés et passage sur GPU
     model = AlexNet(num_classes=120).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs
-    model.load_state_dict(torch.load(r'C:\Users\User\Documents\projets vision\AlexNet\models\alexnet_SDogs_epochs10.pth'))
+    model.load_state_dict(torch.load(r'C:\Users\User\Documents\projets vision\AlexNet\models\alexnet_SDogs_epochs35.pth'))
 
     # Passage en mode évaluation (désactive le Dropout)
     model.eval()

@@ -27,8 +27,8 @@ def main():
     train_losses = []
     test_losses = []
 
-    # Nombre d'époques (tu pourras l'augmenter, ex: 20 ou 50 pour observer l'overfitting)
-    num_epochs = 10
+    # Nombre d'époques      
+    num_epochs = 35 # after 40 epochs it starts to overfit
 
     print("\n--- Début de l'entraînement ---")
     for epoch in range(num_epochs):
@@ -66,7 +66,7 @@ def main():
         test_losses.append(epoch_test_loss)
 
         # Affichage des résultats de l'époque
-        print(f"Époque [{epoch+1}/{num_epochs}] | Train Loss: {epoch_train_loss:.4f} | Test Loss: {epoch_test_loss:.4f}")
+        print(f"Epochs [{epoch+1}/{num_epochs}] | Train Loss: {epoch_train_loss:.4f} | Test Loss: {epoch_test_loss:.4f}")
 
     print("Entraînement terminé avec succès !")
 
@@ -74,8 +74,8 @@ def main():
     plt.figure(figsize=(10, 5))
     plt.plot(range(1, num_epochs + 1), train_losses, label='Train Loss', marker='o', color='blue')
     plt.plot(range(1, num_epochs + 1), test_losses, label='Test Loss', marker='o', color='orange')
-    plt.title('Évolution de la Loss (Entraînement vs Test)')
-    plt.xlabel('Époques')
+    plt.title('Évolution de la Loss (Trainning vs Test)')
+    plt.xlabel('Epochs')
     plt.ylabel('Loss (CrossEntropy)')
     plt.legend()
     plt.grid(True)
