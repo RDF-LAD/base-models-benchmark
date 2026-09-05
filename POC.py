@@ -1,3 +1,5 @@
+import os
+
 import torch
 import torch.nn.functional as F
 from torchvision import transforms
@@ -24,9 +26,9 @@ def predict_image(image_path):
     input_tensor = transform(image).unsqueeze(0).to(device)
 
     # Chargement du modèle et des poids entraînés
-    model = AlexNet(num_classes=10).to(device)
+    model = AlexNet(num_classes=120).to(device)
     try:
-        model.load_state_dict(torch.load(r'AlexNet\models\alexnet_SDogs_epochs35.pth', map_location=device))
+        model.load_state_dict(torch.load(r'C:\Users\User\Documents\projets vision\AlexNet\models\alexnet_SDogs_epochs35.pth', map_location=device))
     except FileNotFoundError:
         print("Erreur : Le fichier 'alexnet_SDogs_epochs35.pth' est introuvable. Lancez d'abord training.py pour sauvegarder le modèle.")
         return
@@ -40,10 +42,13 @@ def predict_image(image_path):
         probabilities = F.softmax(outputs, dim=1)[0] * 100
 
     # Étiquettes des classes CIFAR-10
-    class_names = [
-        'Avion', 'Automobile', 'Oiseau', 'Chat', 'Cerf', 
-        'Chien', 'Grenouille', 'Cheval', 'Bateau', 'Camion'
-    ]
+    # class_names = [
+    #     'Avion', 'Automobile', 'Oiseau', 'Chat', 'Cerf', 
+    #     'Chien', 'Grenouille', 'Cheval', 'Bateau', 'Camion'
+    # ]
+        #nom des classes Stanford dogs dataset
+    data_dir = r'C:\Users\User\Documents\projets vision\datasets\Stanford_dogs\Images\Images'
+    class_names = sorted([d.split('-', 1)[1] for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d))])
 
     print(f"\nDistribution des probabilités pour : {image_path}")
     print("-" * 45)
@@ -60,5 +65,5 @@ def predict_image(image_path):
     print(f"-> Prédiction finale : {class_names[indices[0].item()]} ({prob_sorted[0].item():.4f}% de confiance)\n")
 
 if __name__ == '__main__':
-    path = r'AlexNet\test_pictures\poppydog.jpg'
+    path = r'C:\Users\User\Documents\projets vision\AlexNet\test_pictures\poppydog.jpg'
     predict_image(path)
