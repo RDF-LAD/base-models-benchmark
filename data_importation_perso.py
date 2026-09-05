@@ -46,16 +46,16 @@ class StanfordDogsFolderDataset(Dataset):
 
         return image, torch.tensor(label, dtype=torch.long)
 
-def get_stanford_dogs_split_loaders(root_dir=r'C:\Users\User\Documents\projets vision\datasets\Stanford_dogs\Images\Images', batch_size=32, train_ratio=0.8):
+def get_stanford_dogs_split_loaders(root_dir=r'C:\Users\User\Documents\projets vision\datasets\Stanford_dogs\Images\Images', batch_size=32, train_ratio=0.7, val_ratio=0.1):
 
     # Récupérer tous les sous-dossiers (les races) et les trier alphabétiquement
     classes = sorted([d for d in os.listdir(root_dir) if os.path.isdir(os.path.join(root_dir, d))])
     class_to_idx = {cls_name: i for i, cls_name in enumerate(classes)}
 
-    train_paths, train_labels = [], []
-    test_paths, test_labels = [], []
+    train_paths, val_paths, test_paths = [], [], []
+    train_labels, val_labels, test_labels = [], [], []
 
-    # Parcourir chaque race pour faire le split 80/20
+    # Parcourir chaque race pour faire le split 70/10/20
     for cls_name in classes:
         cls_dir = os.path.join(root_dir, cls_name)
         images = [os.path.join(cls_dir, img) for img in os.listdir(cls_dir) if img.lower().endswith(('jpg', 'jpeg', 'png'))]
@@ -65,14 +65,19 @@ def get_stanford_dogs_split_loaders(root_dir=r'C:\Users\User\Documents\projets v
         random.shuffle(images)
         
         split_idx = int(len(images) * train_ratio)
+        val_split_idx = int(len(images) * (train_ratio + val_ratio))  # 10% for validation
         
         train_images = images[:split_idx]
-        test_images = images[split_idx:]
+        val_images = images[split_idx:val_split_idx]
+        test_images = images[val_split_idx:]
         
         label_idx = class_to_idx[cls_name]
         
         train_paths.extend(train_images)
         train_labels.extend([label_idx] * len(train_images))
+        
+        val_paths.extend(val_images)
+        val_labels.extend([label_idx] * len(val_images))
         
         test_paths.extend(test_images)
         test_labels.extend([label_idx] * len(test_images))
@@ -97,18 +102,21 @@ def get_stanford_dogs_split_loaders(root_dir=r'C:\Users\User\Documents\projets v
 
     # Instanciation des datasets PyTorch
     trainset = StanfordDogsFolderDataset(train_paths, train_labels, transform=train_transform)
+    valset = StanfordDogsFolderDataset(val_paths, val_labels, transform=test_transform)
     testset = StanfordDogsFolderDataset(test_paths, test_labels, transform=test_transform)
 
     # Création des DataLoaders
     trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
+    valloader = DataLoader(valset, batch_size=batch_size, shuffle=False, num_workers=2)
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
 
     print(f"Nombre de classes détectées : {len(classes)}")
     print(f"Total images d'entraînement : {len(trainset)}")
+    print(f"Total images de validation : {len(valset)}")
     print(f"Total images de test : {len(testset)}")
 
-    return trainloader, testloader
+    return trainloader, valloader, testloader
 
 if __name__ == '__main__':
-     train_loader, test_loader = get_stanford_dogs_split_loaders()
+     train_loader, val_loader, test_loader = get_stanford_dogs_split_loaders()
 #      print(compute_mean_and_std(train_loader))
