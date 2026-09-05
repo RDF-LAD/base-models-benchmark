@@ -2,6 +2,7 @@ import torch
 import torchvision
 import torchvision.transforms as transforms
 import numpy as np
+from torch.utils.data import random_split
 
 class PCAColorAugmentation:
     """
@@ -52,7 +53,7 @@ def get_data_loaders(batch_size=64):
         transforms.RandomPerspective(distortion_scale=0.1, p=0.5),
         transforms.GaussianBlur(kernel_size=(3, 5), sigma=(0.1, 1.0)),
         transforms.ToTensor(),
-        PCAColorAugmentation(cifar_eigen_values, cifar_eigen_vectors, std=0.1), # Appliqué ici sur le tenseur brut [0, 1]
+        #PCAColorAugmentation(cifar_eigen_values, cifar_eigen_vectors, std=0.1), # Appliqué ici sur le tenseur brut [0, 1]
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))
     ])
 
@@ -64,10 +65,15 @@ def get_data_loaders(batch_size=64):
     ])
 
     #Stratégie de chargement des datasets CIFAR-10
-    trainset = torchvision.datasets.CIFAR10(root='./datasets', train=True, download=False, transform=train_transform)
+    full_trainset = torchvision.datasets.CIFAR10(root=r'C:\Users\User\Documents\projets vision\datasets', train=True, download=True, transform=train_transform)
+    # 2. Le diviser en Train (ex: 45 000 images) et Validation (ex: 5 000 images)
+    train_size = int(0.9 * len(full_trainset))
+    val_size = len(full_trainset) - train_size
+    trainset, valset = random_split(full_trainset, [train_size, val_size])
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
+    valloader = torch.utils.data.DataLoader(valset, batch_size=batch_size, shuffle=False, num_workers=2)
 
-    testset = torchvision.datasets.CIFAR10(root='./datasets', train=False, download=False, transform=test_transform)
+    testset = torchvision.datasets.CIFAR10(root=r'C:\Users\User\Documents\projets vision\datasets', train=False, download=True, transform=test_transform)
     testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
 
-    return trainloader, testloader
+    return trainloader, valloader, testloader

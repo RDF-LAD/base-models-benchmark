@@ -43,9 +43,9 @@ class BasicBlockModified(nn.Module):
         return out
 
 
-class SimpleResNet(nn.Module):
+class ResNet(nn.Module):
     def __init__(self, num_classes=120):
-        super(SimpleResNet, self).__init__()
+        super(ResNet, self).__init__()
         
         # Convolution initiale
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, padding=1,stride=2,bias=False)
@@ -125,5 +125,5 @@ class SimpleResNet(nn.Module):
         return x
 
 
-example_model = SimpleResNet(num_classes=10)
-summary(example_model,input_size=(1, 3, 224, 224))
+# example_model = SimpleResNet(num_classes=10)
+# summary(example_model,input_size=(1, 3, 224, 224))
