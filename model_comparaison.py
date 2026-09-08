@@ -1,6 +1,6 @@
 import torch
 from sklearn.metrics import accuracy_score, classification_report
-from CNN_archi import AlexNet
+from CNN_archi_AlexNet import AlexNet
 from data_importation import get_data_loaders
 
 def evaluate_model(model_path, testloader, device, model_name="Modèle"):

@@ -46,7 +46,7 @@ class StanfordDogsFolderDataset(Dataset):
 
         return image, torch.tensor(label, dtype=torch.long)
 
-def get_stanford_dogs_split_loaders(root_dir=r'C:\Users\User\Documents\projets vision\datasets\Stanford_dogs\Images\Images', batch_size=32, train_ratio=0.7, val_ratio=0.1):
+def get_stanford_dogs_split_loaders(root_dir=r'C:\Users\User\Documents\projets vision\datasets\Stanford_dogs\Images\Images', batch_size=32, train_ratio=0.64, val_ratio=0.16):
 
     # Récupérer tous les sous-dossiers (les races) et les trier alphabétiquement
     classes = sorted([d for d in os.listdir(root_dir) if os.path.isdir(os.path.join(root_dir, d))])

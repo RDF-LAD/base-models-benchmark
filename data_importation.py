@@ -67,7 +67,7 @@ def get_data_loaders(batch_size=64):
     #Stratégie de chargement des datasets CIFAR-10
     full_trainset = torchvision.datasets.CIFAR10(root=r'C:\Users\User\Documents\projets vision\datasets', train=True, download=True, transform=train_transform)
     # 2. Le diviser en Train (ex: 45 000 images) et Validation (ex: 5 000 images)
-    train_size = int(0.9 * len(full_trainset))
+    train_size = int(0.8 * len(full_trainset))
     val_size = len(full_trainset) - train_size
     trainset, valset = random_split(full_trainset, [train_size, val_size])
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)

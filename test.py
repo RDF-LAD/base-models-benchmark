@@ -2,7 +2,7 @@ import os
 
 import torch
 from sklearn.metrics import classification_report, accuracy_score
-from CNN_archi import AlexNet
+from CNN_archi_AlexNet import AlexNet
 from data_importation import get_data_loaders
 from data_importation_perso import get_stanford_dogs_split_loaders
 
@@ -25,7 +25,7 @@ def main():
 
     # Récupération uniquement du dataloader de test
     #_, testloader = get_data_loaders(batch_size=64)
-    _, testloader = get_stanford_dogs_split_loaders(batch_size=64)
+    _,_, testloader = get_stanford_dogs_split_loaders(batch_size=64)
 
     # Instanciation du modèle, chargement des poids entraînés et passage sur GPU
     model = AlexNet(num_classes=120).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs

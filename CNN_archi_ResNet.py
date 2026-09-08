@@ -44,7 +44,7 @@ class BasicBlockModified(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, num_classes=120):
+    def __init__(self, num_classes=10):
         super(ResNet, self).__init__()
         
         # Convolution initiale

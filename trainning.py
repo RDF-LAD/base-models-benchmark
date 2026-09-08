@@ -55,11 +55,19 @@ def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1):
 
     # Nombre d'époques      
     num_epochs = nb_epochs 
+    epoch = 1
 
     print("\n--- Début de l'entraînement ---")
-    for epoch in range(num_epochs):
+    while epoch <= num_epochs:
         
-   
+        # Ask for increasing the nb of epochs based on the loss evolution
+        if epoch ==num_epochs:
+            user_input = input("Would you increase the number of epochs ? (y/n) : ")
+            if user_input.lower() == 'y':
+                additional_epochs = int(input("By how many ? "))
+                num_epochs += additional_epochs
+                print(f"The total number of epochs is now : {num_epochs}.")
+
         model.train()
         running_train_loss = 0.0
         
@@ -95,9 +103,12 @@ def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1):
             scheduler.step(epoch_test_loss)
 
         # Affichage des résultats de l'époque
-        print(f"Epochs [{epoch+1}/{num_epochs}] | Train Loss: {epoch_train_loss:.4f} | Test Loss: {epoch_test_loss:.4f}")
-
+        print(f"Epochs [{epoch}/{num_epochs}] | Train Loss: {epoch_train_loss:.4f} | Test Loss: {epoch_test_loss:.4f}")
+        epoch += 1
     print("Entraînement terminé avec succès !")
+    # À la fin de training.py, après l'entraînement
+    torch.save(model.state_dict(), str(model_type)+'_'+str(dataset)+'_'+str(num_epochs)+'.pth')
+    print("Modèle sauvegardé avec succès sous '"+str(model_type)+'_'+str(dataset)+'_'+str(num_epochs)+".pth'")
 
     # --- 3. AFFICHAGE DES COURBES ---
     plt.figure(figsize=(10, 5))
@@ -110,9 +121,7 @@ def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1):
     plt.grid(True)
     plt.show()
 
-    # À la fin de training.py, après l'entraînement
-    torch.save(model.state_dict(), str(model_type)+'_'+str(dataset)+'_'+str(nb_epochs)+'.pth')
-    print("Modèle sauvegardé avec succès sous '"+str(model_type)+'_'+str(dataset)+'_'+str(nb_epochs)+".pth'")
+
 
 if __name__ == '__main__':
-    main(dataset='cifar10', model_type = 'ResNet', nb_epochs=1)
+    main(dataset='Sanford', model_type = 'ResNet', nb_epochs=50)

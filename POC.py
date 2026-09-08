@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 from torchvision import transforms
 from PIL import Image
-from CNN_archi import AlexNet
+from CNN_archi_AlexNet import AlexNet
 
 def predict_image(image_path):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
