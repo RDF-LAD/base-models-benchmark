@@ -1,0 +1,18 @@
+Basic block :  The basic ResNet blocks keep the number of feature channel in a feature map,
+and include two convolution layers encapsuled by a shortcut connection. 
+
+Global architecture. The global architecture stacks basic blocks with the following excep
+tions and logic:
+• the first layer is just a normal convolutional layer, with a large 7 × 7 kernel, stride 2, 64
+output features and followed by batch normalization, ReLU, and local max pooling over
+3 ×3 neighborhood and stride 2.
+• the last convolutional block is followed by a global average pooling and a linear layer (that
+maps to the number of output dimensions of the network, typically the number of classes
+for classification)
+• in between, there are 4 sets of blocks, which each includes the same number of blocks (an
+hyperparameter of the architecture, which implicitly defines the network depth). Their
+number of features in each set of blocks is 64 128, 256 and 512 respectively.
+• the different types of blocks are connected by a modified basic block, where the first con
+volution has a stride of 2 but doubles the number of features, and the shortcut connection
+is replaced by a convolution with a 1 kernel and stride 2 doubling the number of features,
+followed by a batch normalization
