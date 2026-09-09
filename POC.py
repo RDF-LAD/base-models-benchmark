@@ -6,8 +6,9 @@ from torchvision import transforms
 from PIL import Image
 from CNN_archi_AlexNet import AlexNet
 from CNN_archi_ResNet import ResNet
+from CNN_archi_ViT import VisionTransformer
 
-def predict_image(image_path,dataset='cifar10',model_name='AlexNet',epochs=35):
+def predict_image(image_path,dataset='cifar10',model_type='AlexNet',epochs=35):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     if dataset == 'cifar10':
@@ -49,13 +50,16 @@ def predict_image(image_path,dataset='cifar10',model_name='AlexNet',epochs=35):
     
     # Chargement du modèle et des poids entraînés
 
-    if model_name == 'AlexNet': 
+    if model_type == 'AlexNet': 
             model = AlexNet(num_classes=n_class).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs
     
-    else :
+    elif model_type == 'ResNet' :
             model = ResNet(num_classes=n_class).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs
+
+    elif model_type == 'ViT':
+            model = VisionTransformer(num_classes=n_class).to(device)            
     
-    model.load_state_dict(torch.load(r'C:\Users\User\Documents\projets vision\AlexNet\models//'+model_name+'_'+dataset+'_'+str(epochs)+'.pth'))
+    model.load_state_dict(torch.load(r'C:\Users\User\Documents\projets vision\AlexNet\models//'+model_type+'_'+dataset+'_'+str(epochs)+'.pth'))
 
     model.eval()
 
@@ -80,4 +84,4 @@ def predict_image(image_path,dataset='cifar10',model_name='AlexNet',epochs=35):
 
 if __name__ == '__main__':
     path = r'C:\Users\User\Documents\projets vision\AlexNet\test_pictures\chien3.jpeg'
-    predict_image(path,dataset='cifar10',model_name='ResNet',epochs=50)
+    predict_image(path,dataset='cifar10',model_type='ResNet',epochs=50)

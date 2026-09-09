@@ -4,6 +4,7 @@ import torch
 from sklearn.metrics import classification_report, accuracy_score
 from CNN_archi_AlexNet import AlexNet
 from CNN_archi_ResNet import ResNet
+from CNN_archi_ViT import VisionTransformer
 from data_importation import get_data_loaders
 from data_importation_perso import get_stanford_dogs_split_loaders
 
@@ -19,7 +20,7 @@ def top_5_accuracy(y_true, y_pred_top5):
             correct += 1
     return correct / len(y_true)
 
-def main(dataset = 'cifar10',model_name = 'AlexNet',epochs = 35):
+def main(dataset = 'cifar10',model_type = 'AlexNet',epochs = 35):
     # Configuration du GPU
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Évaluation en cours sur : {torch.cuda.get_device_name(0) if device.type == 'cuda' else 'CPU'}")
@@ -39,13 +40,16 @@ def main(dataset = 'cifar10',model_name = 'AlexNet',epochs = 35):
         class_names = sorted([d.split('-', 1)[1] for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d))])
 
     # Instanciation du modèle, chargement des poids entraînés et passage sur GPU
-    if model_name == 'AlexNet': 
+    if model_type == 'AlexNet': 
         model = AlexNet(num_classes=n_class).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs
 
-    else :
+    elif model_type =='ResNet' :
         model = ResNet(num_classes=n_class).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs
 
-    model.load_state_dict(torch.load(r'C:\Users\User\Documents\projets vision\AlexNet\models//'+model_name+'_'+dataset+'_'+str(epochs)+'.pth'))
+    elif model_type == 'ViT':
+            model = VisionTransformer(num_classes=n_class).to(device)
+
+    model.load_state_dict(torch.load(r'C:\Users\User\Documents\projets vision\AlexNet\models//'+model_type+'_'+dataset+'_'+str(epochs)+'.pth'))
     # Passage en mode évaluation (désactive le Dropout)
     model.eval()
 
@@ -91,4 +95,4 @@ def main(dataset = 'cifar10',model_name = 'AlexNet',epochs = 35):
 
 
 if __name__ == '__main__':
-    main(dataset = 'Sanford',model_name='ResNet',epochs=50)
+    main(dataset = 'Sanford',model_type='ResNet',epochs=50)

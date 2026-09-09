@@ -4,10 +4,12 @@ import torch.optim as optim
 from torchinfo import summary
 from CNN_archi_AlexNet import AlexNet
 from CNN_archi_ResNet import ResNet
+from CNN_archi_ViT import VisionTransformer
 from data_importation import get_data_loaders
 from data_importation_perso import get_stanford_dogs_split_loaders
 import matplotlib.pyplot as plt
 from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import LinearLR
 
 def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1):
     # Configuration
@@ -24,21 +26,24 @@ def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1):
     if dataset == 'cifar10':
         if model_type == 'AlexNet':
             model = AlexNet(num_classes=10).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs
-        else:
+        elif model_type == 'ResNet':
             model = ResNet(num_classes=10).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs
+        elif model_type == 'ViT':
+            model = VisionTransformer(num_classes=10).to(device)
     else :
         if model_type == 'AlexNet':
             model = AlexNet(num_classes=120).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs
-        else:
+        elif model_type == 'ResNet':
             model = ResNet(num_classes=120).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs
-
+        elif model_type == 'ViT':
+            model = VisionTransformer(num_classes=120).to(device)
 
     # Fonction de perte et optimisateur
     criterion = nn.CrossEntropyLoss()
     if model_type == 'AlexNet':
-        optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=0.0005)
+        optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=0.0005) # weight decay = regularization L1
   
-    else:
+    elif model_type == 'ResNet':
 
         optimizer = optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=0.0001)
         scheduler = ReduceLROnPlateau(
@@ -48,6 +53,9 @@ def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1):
         patience=5,     # Nombre d'époques à attendre sans amélioration avant d'agir
         threshold=1e-4  # Seuil minimal pour considérer qu'il y a une amélioration
 )
+    elif model_type =='ViT':
+        optimizer = optim.Adam(lr=0.001,betas=(0.9,0.999),weight_decay=0.1) # Ya pre-training et  FINE TUNNING POUR VIT (VOIR PAPIER)
+        scheduler = LinearLR(optimizer, start_factor=1.0, end_factor=0.1) # LR linearly decresing from epochs 10 (not exactly right but close to paper)
 
     # Listes pour stocker l'historique des pertes
     train_losses = []
@@ -101,6 +109,9 @@ def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1):
         # Mise à jour du scheduler basé sur la loss de test
         if model_type == 'ResNet':
             scheduler.step(epoch_test_loss)
+        elif model_type == 'ViT':
+            if epoch >= 10:  
+                scheduler.step()
 
         # Affichage des résultats de l'époque
         print(f"Epochs [{epoch}/{num_epochs}] | Train Loss: {epoch_train_loss:.4f} | Test Loss: {epoch_test_loss:.4f}")
