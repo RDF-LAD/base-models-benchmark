@@ -8,19 +8,20 @@ from CNN_archi_ViT import VisionTransformer
 from data_importation import get_data_loaders
 from data_importation_perso import get_stanford_dogs_split_loaders
 import matplotlib.pyplot as plt
-from torch.optim.lr_scheduler import ReduceLROnPlateau
-from torch.optim.lr_scheduler import LinearLR
+from torch.optim.lr_scheduler import ReduceLROnPlateau, LinearLR, CosineAnnealingLR, SequentialLR
+from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
 
-def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1):
+
+def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1,size=224,fine_tunning = False,path_model = None,high_augm = True ):
     # Configuration
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Entraînement en cours sur : {torch.cuda.get_device_name(0) if device.type == 'cuda' else 'CPU'}")
 
     # Récupération des dataloaders
     if dataset == 'cifar10':
-        trainloader, valloader, testloader = get_data_loaders(batch_size=64)
+        trainloader, valloader, testloader = get_data_loaders(batch_size=64, img_size=size,augm_max = high_augm)
     else:
-        trainloader, valloader, testloader = get_stanford_dogs_split_loaders(batch_size=64)
+        trainloader, valloader, testloader = get_stanford_dogs_split_loaders(batch_size=64, img_size=size)
 
     # Instanciation du modèle et passage sur GPU
     if dataset == 'cifar10':
@@ -29,17 +30,24 @@ def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1):
         elif model_type == 'ResNet':
             model = ResNet(num_classes=10).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs
         elif model_type == 'ViT':
-            model = VisionTransformer(num_classes=10).to(device)
+            model = VisionTransformer( img_size = size, patch_size=4,embed_dim=384,depth=6,num_heads=6,mlp_ratio=2,num_classes=10).to(device)
     else :
         if model_type == 'AlexNet':
             model = AlexNet(num_classes=120).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs
         elif model_type == 'ResNet':
             model = ResNet(num_classes=120).to(device) # 10 classes for Cifar-10 / 120 for stanford dogs
         elif model_type == 'ViT':
-            model = VisionTransformer(num_classes=120).to(device)
+            model = VisionTransformer(img_size=size, patch_size=4, embed_dim=384, depth=6, num_heads=6, mlp_ratio=2, num_classes=120).to(device)
+
+    if fine_tunning:
+        model.load_state_dict(torch.load(path_model))
+     # Nombre d'époques      
+    num_epochs = nb_epochs 
+    epoch = 1
 
     # Fonction de perte et optimisateur
     criterion = nn.CrossEntropyLoss()
+
     if model_type == 'AlexNet':
         optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=0.0005) # weight decay = regularization L1
   
@@ -54,18 +62,25 @@ def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1):
         threshold=1e-4  # Seuil minimal pour considérer qu'il y a une amélioration
 )
     elif model_type =='ViT':
-        optimizer = optim.Adam(lr=0.001,betas=(0.9,0.999),weight_decay=0.1) # Ya pre-training et  FINE TUNNING POUR VIT (VOIR PAPIER)
-        scheduler = LinearLR(optimizer, start_factor=1.0, end_factor=0.1) # LR linearly decresing from epochs 10 (not exactly right but close to paper)
-
+        #initial trainnig
+        #optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=0.0005)
+        #training part 2
+        # optimizer = optim.AdamW(model.parameters(), lr=0.001, betas=(0.9, 0.999), weight_decay=0.05)
+        # scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=30, T_mult=1, eta_min=1e-6)
+        #fine-tunning
+        optimizer = optim.SGD(model.parameters(), lr=0.003, momentum=0.9, weight_decay=0)
+  
+        
     # Listes pour stocker l'historique des pertes
     train_losses = []
     val_losses = []
 
-    # Nombre d'époques      
-    num_epochs = nb_epochs 
-    epoch = 1
+ 
 
     print("\n--- Début de l'entraînement ---")
+
+    #scaler = torch.amp.GradScaler('cuda')
+    
     while epoch <= num_epochs:
         
         # Ask for increasing the nb of epochs based on the loss evolution
@@ -83,10 +98,15 @@ def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1):
             inputs, labels = inputs.to(device), labels.to(device)
 
             optimizer.zero_grad()
+            #with torch.amp.autocast('cuda'):
             outputs = model(inputs)
             loss = criterion(outputs, labels)
+
             loss.backward()
+            #scaler.scale(loss).backward()
             optimizer.step()
+            # scaler.step(optimizer)
+            # scaler.update()
 
             running_train_loss += loss.item()
             
@@ -108,10 +128,9 @@ def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1):
         val_losses.append(epoch_test_loss)
         # Mise à jour du scheduler basé sur la loss de test
         if model_type == 'ResNet':
-            scheduler.step(epoch_test_loss)
-        elif model_type == 'ViT':
-            if epoch >= 10:  
-                scheduler.step()
+            scheduler.step(epoch_test_loss) 
+        #elif model_type == 'ViT':  
+            #nscheduler.step()
 
         # Affichage des résultats de l'époque
         print(f"Epochs [{epoch}/{num_epochs}] | Train Loss: {epoch_train_loss:.4f} | Test Loss: {epoch_test_loss:.4f}")
@@ -130,9 +149,9 @@ def main(dataset='cifar10', model_type = 'AlexNet', nb_epochs=1):
     plt.ylabel('Loss (CrossEntropy)')
     plt.legend()
     plt.grid(True)
-    plt.show()
+    plt.show() 
 
 
 
 if __name__ == '__main__':
-    main(dataset='Sanford', model_type = 'ResNet', nb_epochs=50)
+    main(dataset='cifar10', model_type = 'ViT', nb_epochs=30, size=32, fine_tunning = True, path_model = r'C:\Users\User\Documents\projets vision\AlexNet\models\ViT_cifar10_20.pth',high_augm=False)

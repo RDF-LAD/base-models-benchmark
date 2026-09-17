@@ -1,0 +1,5 @@
+Les CNN étaient entièrement entrainables en local. 
+Néanmoins les modèles transformers sont bien plus dur à entrainer, les transformers ont aucun biais spatial 
+et l'entrainement depuis zero est complexe et couteux.
+Ainsi je propose un exemple d'un ViT entrainé en local présentant des performances limitées, mais par la suite j'utiliserai 
+des modèles préentrainés, que je tenterai pas la suite de finetuner.

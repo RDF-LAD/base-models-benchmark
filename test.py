@@ -20,21 +20,21 @@ def top_5_accuracy(y_true, y_pred_top5):
             correct += 1
     return correct / len(y_true)
 
-def main(dataset = 'cifar10',model_type = 'AlexNet',epochs = 35):
+def main(dataset = 'cifar10',model_type = 'AlexNet',epochs = 35,size=32):
     # Configuration du GPU
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Évaluation en cours sur : {torch.cuda.get_device_name(0) if device.type == 'cuda' else 'CPU'}")
 
     # Récupération uniquement du dataloader de test
     if dataset == 'cifar10':
-        _,_, testloader = get_data_loaders(batch_size=64)
+        _,_, testloader = get_data_loaders(batch_size=64,img_size=size)
         n_class = 10
         class_names = [
          'Avion', 'Automobile', 'Oiseau', 'Chat', 'Cerf', 
          'Chien', 'Grenouille', 'Cheval', 'Bateau', 'Camion'
      ]
     else :
-        _,_, testloader = get_stanford_dogs_split_loaders(batch_size=64)
+        _,_, testloader = get_stanford_dogs_split_loaders(batch_size=64,img_size=size)
         n_class = 120
         data_dir = r'C:\Users\User\Documents\projets vision\datasets\Stanford_dogs\Images\Images'
         class_names = sorted([d.split('-', 1)[1] for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d))])
@@ -95,4 +95,4 @@ def main(dataset = 'cifar10',model_type = 'AlexNet',epochs = 35):
 
 
 if __name__ == '__main__':
-    main(dataset = 'Sanford',model_type='ResNet',epochs=50)
+    main(dataset = 'cifar10',model_type='ViT',epochs=20)

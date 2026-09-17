@@ -29,14 +29,11 @@ class VisionTransformer(nn.Module):
     """Architecture Vision Transformer (ViT) complète."""
     def __init__(
         self, 
-        img_size=224, 
-        patch_size=16, 
+        img_size=32, 
+        patch_size=4, 
         in_channels=3, 
         num_classes=1000, 
-        embed_dim=768, 
-        depth=12, 
-        num_heads=12, 
-        mlp_ratio=4.0, 
+        embed_dim=384, depth=6, num_heads=6, mlp_ratio=2 ,
         drop_rate=0.0
     ):
         super().__init__()
