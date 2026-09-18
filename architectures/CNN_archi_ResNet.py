@@ -123,7 +123,3 @@ class ResNet(nn.Module):
         x = torch.flatten(x, 1)
         x = self.fc(x)
         return x
-
-
-# example_model = SimpleResNet(num_classes=10)
-# summary(example_model,input_size=(1, 3, 224, 224))

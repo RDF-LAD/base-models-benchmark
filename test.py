@@ -2,11 +2,11 @@ import os
 
 import torch
 from sklearn.metrics import classification_report, accuracy_score
-from CNN_archi_AlexNet import AlexNet
-from CNN_archi_ResNet import ResNet
-from CNN_archi_ViT import VisionTransformer
-from data_importation import get_data_loaders
-from data_importation_perso import get_stanford_dogs_split_loaders
+from architectures.CNN_archi_AlexNet import AlexNet
+from architectures.CNN_archi_ResNet import ResNet
+from architectures.CNN_archi_ViT import VisionTransformer
+from data_importation.data_importation import get_data_loaders
+from data_importation.data_importation_perso import get_stanford_dogs_split_loaders
 
 def top_5_accuracy(y_true, y_pred_top5):
     """
@@ -34,7 +34,7 @@ def main(dataset = 'cifar10',model_type = 'AlexNet',epochs = 35,size=32):
          'Chien', 'Grenouille', 'Cheval', 'Bateau', 'Camion'
      ]
     else :
-        _,_, testloader = get_stanford_dogs_split_loaders(batch_size=64,img_size=size)
+        _,_, testloader = get_stanford_dogs_split_loaders(batch_size=64)
         n_class = 120
         data_dir = r'C:\Users\User\Documents\projets vision\datasets\Stanford_dogs\Images\Images'
         class_names = sorted([d.split('-', 1)[1] for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d))])

@@ -2,11 +2,11 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchinfo import summary
-from CNN_archi_AlexNet import AlexNet
-from CNN_archi_ResNet import ResNet
-from CNN_archi_ViT import VisionTransformer
-from data_importation import get_data_loaders
-from data_importation_perso import get_stanford_dogs_split_loaders
+from architectures.CNN_archi_AlexNet import AlexNet
+from architectures.CNN_archi_ResNet import ResNet
+from architectures.CNN_archi_ViT import VisionTransformer
+from data_importation.data_importation import get_data_loaders
+from data_importation.data_importation_perso import get_stanford_dogs_split_loaders
 import matplotlib.pyplot as plt
 from torch.optim.lr_scheduler import ReduceLROnPlateau, LinearLR, CosineAnnealingLR, SequentialLR
 from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts

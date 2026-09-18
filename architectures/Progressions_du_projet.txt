@@ -1,5 +1,9 @@
 Les CNN étaient entièrement entrainables en local. 
+- Avec quelques transformations et une SGD simple on s'en sortait.*
+
 Néanmoins les modèles transformers sont bien plus dur à entrainer, les transformers ont aucun biais spatial 
 et l'entrainement depuis zero est complexe et couteux.
+- Il faut bien scheduler une descente de lr, ne pas faire n'importe quoi avec les augmentations 
 Ainsi je propose un exemple d'un ViT entrainé en local présentant des performances limitées, mais par la suite j'utiliserai 
 des modèles préentrainés, que je tenterai pas la suite de finetuner.
+Je vais importer un modèle préentrainé sur ImageNet puis le fine tunner sur Cifar 10 et observés l'évolution des performances.
