@@ -5,12 +5,19 @@ import torch
 import numpy as np
 
 class PreTrainedViT:
+    """
+    Definit le modèle entrainable/testable basée sur ViT. (soit celui préentrainé par google soit un finetunné localement)
+    """
     def __init__(self, num_classes,model_path=None):
         model_ckpt = model_path if model_path is not None else "google/vit-base-patch16-224"
-        
+
+        self.class_names = [
+         'Avion', 'Automobile', 'Oiseau', 'Chat', 'Cerf', 
+         'Chien', 'Grenouille', 'Cheval', 'Bateau', 'Camion'
+     ]
 
         if torch.cuda.is_available():
-            self.device = torch.device("cuda")
+              self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             
         print(f"Utilisation du périphérique : {self.device}")
 
@@ -26,7 +33,7 @@ class PreTrainedViT:
             )
         self.model.to(self.device)
 
-    def fine_tunning(self, train_ds, val_ds):
+    def fine_tunning(self, train_ds, val_ds,n_epoch):
         """
         Entraîne le modèle à l'aide de l'API Trainer de Hugging Face 
         (qui gère automatiquement l'utilisation du GPU).
@@ -44,7 +51,7 @@ class PreTrainedViT:
             per_device_eval_batch_size=16,
             eval_strategy="epoch",  # Évaluation à chaque fin d'époque
             save_strategy="epoch",
-            num_train_epochs=3,
+            num_train_epochs=n_epoch,
             learning_rate=2e-5,  
             weight_decay=0.01,
             load_best_model_at_end=True, # Recharge le meilleur modèle basé sur la métrique d'évaluation
@@ -117,6 +124,8 @@ class PreTrainedViT:
             logits = outputs.logits
             # Transformation des logits en probabilités via Softmax
             probabilities = torch.nn.functional.softmax(logits, dim=-1)
-            predicted_class_idx = torch.argmax(probabilities, dim=-1).item()
+            predicted_class_idx = int(torch.argmax(probabilities, dim=-1).item())
+            confidence = probabilities[0, predicted_class_idx].item()
+            print(f'La classe prédite est {self.class_names[predicted_class_idx]} avec une certitude de {np.round(confidence, 2) * 100}%')
 
         return predicted_class_idx, probabilities.cpu().numpy()

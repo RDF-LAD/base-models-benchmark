@@ -7,6 +7,8 @@ from architectures.CNN_archi_ResNet import ResNet
 from architectures.CNN_archi_ViT import VisionTransformer
 from data_importation.data_importation import get_data_loaders
 from data_importation.data_importation_perso import get_stanford_dogs_split_loaders
+from imported_model.Imported_archi_ViT import PreTrainedViT
+
 
 def top_5_accuracy(y_true, y_pred_top5):
     """
