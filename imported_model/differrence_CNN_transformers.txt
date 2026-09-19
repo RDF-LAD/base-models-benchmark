@@ -1,0 +1,17 @@
+les transformers sont ils par le mécanisme d'attention des features extractors comme le sont les CNN ?
+
+Comparant l'attention des transformers aux extracteurs de caractéristiques des CNN.
+Comparant l'attention des transformers aux extracteurs de caractéristiques des CNN.
+Oui, dans le sens où un transformer préentraîné transforme lui aussi une image brute en représentation utilisable par une tête de classification. Mais il le fait autrement qu'un CNN.
+
+Ce qui est pareil
+Comme un CNN, ViT est entraîné à produire des représentations riches dans ses couches successives, et on peut réutiliser ces représentations pour une autre tâche en changeant seulement la tête. C'est exactement ce que tu fais : self.model.vit joue le rôle de l'extracteur de features, et classifier est la tête.
+
+Concrètement, ViT découpe l'image en patchs de 16×16 (196 patchs en 224×224), projette chacun en un vecteur de 768 dimensions et y ajoute un token spécial [CLS]. Douze blocs (attention puis MLP) mettent ces vecteurs à jour. À la fin, le vecteur du token [CLS] sert de résumé de l'image, et ta tête linéaire ne travaille que sur lui.
+
+Ce qui est différent
+Biais inductifs : un CNN impose par construction la localité (chaque neurone ne regarde qu'un petit voisinage) et l'équivariance par translation (les mêmes filtres partout). L'attention n'impose rien de tel : chaque patch peut interagir avec tous les autres dès la première couche.
+Mécanisme d'agrégation : les poids d'un filtre convolutif sont fixes une fois entraîné. En attention, les poids de mélange entre patchs sont calculés à partir du contenu de l'image, donc ils changent d'une entrée à l'autre.
+Hiérarchie : un CNN construit explicitement une pyramide (résolution qui diminue, nombre de canaux qui augmente). ViT garde la même résolution de tokens à chaque couche. Les variantes hiérarchiques comme Swin réintroduisent cette structure.
+Besoin en données : comme ViT doit apprendre la localité au lieu de l'avoir dans son architecture, il demande beaucoup de données de préentraînement pour égaler un CNN. C'est pour cela que le préentraînement (ici ImageNet) est particulièrement important pour lui, et que ça se passe bien quand tu fais du transfert sur CIFAR-10.
+En pratique, on observe que les premières couches d'un ViT combinent des têtes d'attention locales (proches des filtres d'un CNN) et des têtes plus globales, et que les couches profondes capturent des informations de plus en plus sémantiques. Le modèle apprend donc en partie ce qu'un CNN a d'office.

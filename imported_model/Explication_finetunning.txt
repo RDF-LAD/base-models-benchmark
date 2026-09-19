@@ -1,0 +1,7 @@
+Les raisons de geler le backbone
+Coût de calcul et mémoire : sans gradients ni états d'optimiseur pour les ~86 M de paramètres du backbone, chaque étape est plus rapide et tient dans moins de VRAM.
+Peu de données : sur un petit dataset, mettre à jour tout le réseau risque le sur-apprentissage et l'oubli des features préentraînées. Geler agit comme une forte régularisation.
+Mesurer la qualité des représentations : entraîner uniquement une tête linéaire (le linear probing) est le protocole classique pour comparer des modèles préentraînés entre eux.
+Stabilité au démarrage : ta tête est initialisée aléatoirement, donc ses premiers gradients sont grands et bruités, et ils se propagent dans le backbone. Une stratégie répandue, appelée LP-FT (linear probing puis fine-tuning), consiste à entraîner d'abord la tête seule, puis à dégeler le tout avec un learning rate faible. Elle donne souvent de meilleurs résultats qu'un fine-tuning complet direct.
+
+Une stratégie peut etre de geler le backbone sur les premiers steps puis d'entrainer le tout afin d'éviter les gradients bruités initiaux.

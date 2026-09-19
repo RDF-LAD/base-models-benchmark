@@ -2,3 +2,5 @@
 /__pycache__
 /models
 /datasets
+/imported_model\__pycache__
+/vit-finetuned-custom

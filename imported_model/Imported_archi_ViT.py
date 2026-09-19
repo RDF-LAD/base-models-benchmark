@@ -4,6 +4,11 @@ from PIL import Image
 import torch
 import numpy as np
 
+def collate_fn(batch):
+    pixel_values = torch.stack([item[0] for item in batch])
+    labels = torch.tensor([item[1] for item in batch])
+    return {"pixel_values": pixel_values, "labels": labels}
+
 class PreTrainedViT:
     """
     Definit le modèle entrainable/testable basée sur ViT. (soit celui préentrainé par google soit un finetunné localement)
@@ -15,6 +20,7 @@ class PreTrainedViT:
          'Avion', 'Automobile', 'Oiseau', 'Chat', 'Cerf', 
          'Chien', 'Grenouille', 'Cheval', 'Bateau', 'Camion'
      ]
+
 
         if torch.cuda.is_available():
               self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -33,11 +39,17 @@ class PreTrainedViT:
             )
         self.model.to(self.device)
 
-    def fine_tunning(self, train_ds, val_ds,n_epoch):
+    def fine_tunning(self, train_ds, val_ds,n_epoch,b_size=32,backbone_training = True,save_dir='./FT_Vit'):
         """
         Entraîne le modèle à l'aide de l'API Trainer de Hugging Face 
         (qui gère automatiquement l'utilisation du GPU).
         """
+        lr=  2e-5
+        if backbone_training == False :
+            lr=1e-3 # regularisation par le backbone freeze
+            for param in self.model.vit.parameters():
+                param.requires_grad = False
+
         # Fonction optionnelle pour calculer l'accuracy pendant l'évaluation du Trainer
         def compute_metrics(eval_pred):
             predictions, labels = eval_pred
@@ -47,19 +59,20 @@ class PreTrainedViT:
 
         training_args = TrainingArguments(
             output_dir="./vit-finetuned-custom",
-            per_device_train_batch_size=16,
-            per_device_eval_batch_size=16,
+            per_device_train_batch_size=b_size,
+            per_device_eval_batch_size=b_size,
             eval_strategy="epoch",  # Évaluation à chaque fin d'époque
             save_strategy="epoch",
             num_train_epochs=n_epoch,
-            learning_rate=2e-5,  
+            learning_rate=lr,  
             weight_decay=0.01,
-            load_best_model_at_end=True, # Recharge le meilleur modèle basé sur la métrique d'évaluation
+            load_best_model_at_end=False, # Recharge le meilleur modèle basé sur la métrique d'évaluation
             metric_for_best_model="eval_loss",
             logging_steps=50, #touts les x etapes la metriques est affichée
             save_total_limit=2,
             fp16=torch.cuda.is_available(), 
-            report_to="none" 
+            report_to="none" ,
+            remove_unused_columns=False,
         )
         
         trainer = Trainer(
@@ -68,14 +81,15 @@ class PreTrainedViT:
             train_dataset=train_ds,
             eval_dataset=val_ds,
             compute_metrics=compute_metrics,
+               data_collator=collate_fn,
         )
 
         trainer.train()
 
         # Sauvegarde du modèle final et du processeur associé
-        trainer.save_model("./FT_ViT")
-        self.image_processor.save_pretrained("./FT_ViT")
-        print("Modèle fine-tuné et sauvegardé dans './FT_ViT'")
+        trainer.save_model(save_dir)
+        self.image_processor.save_pretrained(save_dir)
+        print(f"Modèle fine-tuné et sauvegardé dans {save_dir}")
 
     def test(self, testloader):
         """
