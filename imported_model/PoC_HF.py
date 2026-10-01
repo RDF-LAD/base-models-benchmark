@@ -7,6 +7,6 @@ def infer(model_path,img_path):
     model.inference(img_path)
 
 if __name__ == '__main__':
-    m_path= r'C:\Users\User\Documents\projets vision\AlexNet\models\FT_3'
-    im_path = r'C:\Users\User\Documents\projets vision\AlexNet\test_pictures\avion1.jpg'
+    m_path= r'C:\Users\User\Documents\projets vision\AlexNet\models\FT_1-1'
+    im_path = r'C:\Users\User\Documents\projets vision\AlexNet\test_pictures\dog1.jpeg'
     infer(m_path,im_path)

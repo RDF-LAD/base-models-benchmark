@@ -15,5 +15,5 @@ def test(model_path = None, n_class = 10):
     return('End_test')
 
 if __name__ == '__main__' :
-    test(model_path=r'C:\Users\User\Documents\projets vision\AlexNet\models\FT_3')
+    test(model_path=r'C:\Users\User\Documents\projets vision\AlexNet\models\FT_1-1')
         
